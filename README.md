@@ -36,11 +36,12 @@
  
  - Comando para adentrar no terminal de um container: `docker exec -it idContainer bash`
  
- 
+```javascript 
 app.listen(process.env.PORT, ()=> {
   console.log('deu certo')
 })
- 
+```
+```
  FROM node:14
  WORKDIR /app-node
  ARG PORT_BUILD=6000
@@ -49,6 +50,7 @@ app.listen(process.env.PORT, ()=> {
  COPY . .
  RUN npm install
  ENTRYPOINT npm start
+```
  
  docker build -t imagem-piloto/app-node:1.0 .
  docker images
