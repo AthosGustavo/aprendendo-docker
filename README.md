@@ -36,21 +36,18 @@
  
  - Comando para adentrar no terminal de um container: `docker exec -it idContainer bash`
  
-```javascript 
-app.listen(process.env.PORT, ()=> {
-  console.log('deu certo')
-})
+### Bildando e rodando um container sem compose
+```
+FROM node:18
+WORKDIR /app-node
+COPY . .
+RUN yarn install
+ENTRYPOINT yarn start
 ```
 ```
- FROM node:14
- WORKDIR /app-node
- ARG PORT_BUILD=6000
- ENV PORT=$PORT_BUILD
- EXPOSE $PORT_BUILD
- COPY . .
- RUN npm install
- ENTRYPOINT npm start
+docker build -t find-pet/nodejs .
 ```
+*O ponto no final de nodejs representa o diretório atual onde está o arquivo Dockerfile e serve como contexto apra a construção do container*
  
  docker build -t imagem-piloto/app-node:1.0 .
  docker images
