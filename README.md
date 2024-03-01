@@ -47,12 +47,11 @@ ENTRYPOINT yarn start
 ```
 docker build -t find-pet/nodejs .
 ```
+
+TERMINAR DE EXPLICAR O DOCKERFILE
+
 *O ponto no final de nodejs representa o diretório atual onde está o arquivo Dockerfile e serve como contexto apra a construção do container*
- 
- docker build -t imagem-piloto/app-node:1.0 .
- docker images
- 
- 
+  
  COPY . /app-node
   - Copia os arquivos do diretório atual para o diretório da imagem
   - Primeiro ponto: representa o diretório atual da máquina física, onde DockerFile está
