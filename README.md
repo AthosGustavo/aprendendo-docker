@@ -36,32 +36,52 @@
  
  - Comando para adentrar no terminal de um container: `docker exec -it idContainer bash`
  
-### Bildando e rodando um container sem compose
-```
-FROM node:18
-WORKDIR /app-node
-COPY . .
-RUN yarn install
-ENTRYPOINT yarn start
-```
-```
-docker build -t find-pet/nodejs .
-```
+```sql
+version: '3.8'
 
-TERMINAR DE EXPLICAR O DOCKERFILE
+services:
+  mysql:
+    container_name: mysql-container                       // nome do container
+    image: mysql:8.0
+    ports:
+      - 3307:3306
+    environment:
+      - MYSQL_DATABASE=devops_uninassau
+      - MYSQL_ROOT_PASSWORD=senhaRoot
+      - MYSQL_USER=athos
+      - MYSQL_PASSWORD=123
+    networks:
+      - devops-uninassau                                 // `network` representa a rede que este container fará parte
 
-*O ponto no final de nodejs representa o diretório atual onde está o arquivo Dockerfile e serve como contexto apra a construção do container*
-  
- COPY . /app-node
-  - Copia os arquivos do diretório atual para o diretório da imagem
-  - Primeiro ponto: representa o diretório atual da máquina física, onde DockerFile está
+  java:
+    container_name: java-container
+    build:
+      context: .
+      dockerfile: ./docker/java/Dockerfile
+    ports:
+      - 8080:8080
+    depends_on:
+      - mysql
+    volumes:
+      - './src:/usr/app/src'
+    expose:
+      - '8080'
+    networks:
+      - devops-uninassau
+
+networks:                                               // Criação da rede
+  devops-uninassau:
+    driver: bridge
+```
+-  Variáveis de ambiente necessárias para o funcionamento do mysql
+   - `MYSQL_DATABASE=devops_uninassau`
+   - `MYSQL_ROOT_PASSWORD=senhaRoot`
+   - `MYSQL_USER=athos`
+   - `MYSQL_PASSWORD=123`
+   -  No entanto, apenas as variaveis MYSQL_DATABASE, MYSQL_ROOT_PASSWORD já é suficente para conexão
  
- WORKDIR /app-node
- COPY ..
-  - Primeiro ponto: representa o diretório atual da máquina física, onde DockerFile está
-  - Segundo ponto: representa o diretório dentro da imagem
- 
- 
- 
- 
+- `build` é a diretiva usada para construir um Dockerfile.`context` define o contexto de construção
+ do arquivo,esse contexto envolve o acesso a arquivos do diretório especificado.
+- `.` É usado para fazer
+ referência ao diretório onde o arquivo docker-compose.yaml está localizado
  
