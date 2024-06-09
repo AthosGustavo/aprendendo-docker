@@ -103,5 +103,19 @@ networks:                                               // Criação da rede
 **Obsevação:** Note que não foi preciso declarar variáveis de ambiente do banco de dados na sessão do java.
 - As informações de acesso ao MySQL são declaradas apenas no arquivo `application.properties`
 
+#### Dockerfile java
+```sql
+FROM openjdk:17-jdk-alpine
+WORKDIR /usr/app
+COPY ../../target/java-correcao-docker-1.0.0.jar /usr/app/java-correcao-docker-1.0.0.jar
 
+ENV DOCKERIZE_VERSION v0.7.0
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+EXPOSE 8080
+
+CMD dockerize -wait tcp://mysql:3306 -timeout 60s java -jar java-correcao-docker-1.0.0.jar
+```
 
