@@ -42,80 +42,114 @@
   
 </details>
 
-
+<details>
+ <summary>Configuração</summary>
  
-## docker-compose.yaml
-Exemplo de configuração de um arquivo docker-compose.yaml para uma api em Spring boot e um banco de dados MySQL
+  <details>
+   <summary>Compose</summary>
+    
+   # docker-compose.yaml
+   ### Exemplo de configuração de um arquivo docker-compose.yaml para uma api em Spring boot e um banco de dados MySQL
 
-```sql
-version: '3.8'
+   ```sql
+   version: '3.8'
+   
+   services:
+     mysql:
+       container_name: mysql-container                       // nome do container
+       image: mysql:8.0
+       ports:
+         - 3307:3306
+       environment:
+         - MYSQL_DATABASE=devops_uninassau
+         - MYSQL_ROOT_PASSWORD=senhaRoot
+         - MYSQL_USER=athos
+         - MYSQL_PASSWORD=123
+       networks:
+         - devops-uninassau                                 // `network` representa a rede que este container fará parte
+   
+     java:
+       container_name: java-container
+       build:
+         context: .
+         dockerfile: ./docker/java/Dockerfile
+       ports:
+         - 8080:8080
+       depends_on:
+         - mysql
+       volumes:
+         - './src:/usr/app/src'
+       expose:
+         - '8080'
+       networks:
+         - devops-uninassau
+   
+   networks:                                               // Criação da rede
+     devops-uninassau:
+       driver: bridge
+   ```
+   -  Variáveis de ambiente necessárias para o funcionamento do mysql
+      - `MYSQL_DATABASE=devops_uninassau`
+      - `MYSQL_ROOT_PASSWORD=senhaRoot`
+      - `MYSQL_USER=athos`
+      - `MYSQL_PASSWORD=123`
+      -  No entanto, apenas as variaveis MYSQL_DATABASE, MYSQL_ROOT_PASSWORD já é suficente para conexão
+    
+   - `build` é a diretiva usada para construir um Dockerfile.`context` define o contexto de construção
+    do arquivo,esse contexto envolve o acesso a arquivos do diretório especificado.
+   - `.` É usado para fazer
+    referência ao diretório onde o arquivo docker-compose.yaml está localizado
+   
+   <hr>
+   
+   ### Java
+   
+   **Obsevação:** Note que não foi preciso declarar variáveis de ambiente do banco de dados na sessão do java.
+   - As informações de acesso ao MySQL são declaradas apenas no arquivo `application.properties`
+   
+   #### Dockerfile java
+   ```sql
+   FROM openjdk:17-jdk-alpine
+   WORKDIR /usr/app
+   COPY ../../target/java-correcao-docker-1.0.0.jar /usr/app/java-correcao-docker-1.0.0.jar
+   
+   ENV DOCKERIZE_VERSION v0.7.0
+   RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+       && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+       && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+   
+   EXPOSE 8080
+   
+   CMD dockerize -wait tcp://mysql:3306 -timeout 60s java -jar java-correcao-docker-1.0.0.jar
+   ```
+   
+  </details>
+  <details>
+   <summary>Dockerfile</summary>
 
-services:
-  mysql:
-    container_name: mysql-container                       // nome do container
-    image: mysql:8.0
-    ports:
-      - 3307:3306
-    environment:
-      - MYSQL_DATABASE=devops_uninassau
-      - MYSQL_ROOT_PASSWORD=senhaRoot
-      - MYSQL_USER=athos
-      - MYSQL_PASSWORD=123
-    networks:
-      - devops-uninassau                                 // `network` representa a rede que este container fará parte
+   # Dockerfile
+   ### Exemplo de configuração de um Dockerfile
 
-  java:
-    container_name: java-container
-    build:
-      context: .
-      dockerfile: ./docker/java/Dockerfile
-    ports:
-      - 8080:8080
-    depends_on:
-      - mysql
-    volumes:
-      - './src:/usr/app/src'
-    expose:
-      - '8080'
-    networks:
-      - devops-uninassau
+   ```dockerfile
+   version: '3.8'
 
-networks:                                               // Criação da rede
-  devops-uninassau:
-    driver: bridge
-```
--  Variáveis de ambiente necessárias para o funcionamento do mysql
-   - `MYSQL_DATABASE=devops_uninassau`
-   - `MYSQL_ROOT_PASSWORD=senhaRoot`
-   - `MYSQL_USER=athos`
-   - `MYSQL_PASSWORD=123`
-   -  No entanto, apenas as variaveis MYSQL_DATABASE, MYSQL_ROOT_PASSWORD já é suficente para conexão
+    services:
+     postgres:
+       container_name: postgres-container
+       image: 'postgres:9.5'
+       environment:
+         POSTGRES_DB: loja_virtual_mentoria
+         POSTGRES_USER: postgres
+         volumes:
+           - ./pgdata:/var/lib/postgresql/data
+         ports:
+           - "5432:5432"
+
+   ```
+   
+  </details>
  
-- `build` é a diretiva usada para construir um Dockerfile.`context` define o contexto de construção
- do arquivo,esse contexto envolve o acesso a arquivos do diretório especificado.
-- `.` É usado para fazer
- referência ao diretório onde o arquivo docker-compose.yaml está localizado
+</details>
+ 
 
-<hr>
-
-### Java
-
-**Obsevação:** Note que não foi preciso declarar variáveis de ambiente do banco de dados na sessão do java.
-- As informações de acesso ao MySQL são declaradas apenas no arquivo `application.properties`
-
-#### Dockerfile java
-```sql
-FROM openjdk:17-jdk-alpine
-WORKDIR /usr/app
-COPY ../../target/java-correcao-docker-1.0.0.jar /usr/app/java-correcao-docker-1.0.0.jar
-
-ENV DOCKERIZE_VERSION v0.7.0
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
-
-EXPOSE 8080
-
-CMD dockerize -wait tcp://mysql:3306 -timeout 60s java -jar java-correcao-docker-1.0.0.jar
-```
 
